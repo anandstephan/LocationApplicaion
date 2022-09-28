@@ -1,20 +1,72 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import {useEffect,useState} from 'react'
+import {NavigationContainer} from '@react-navigation/native'
+import {createNativeStackNavigator} from '@react-navigation/native-stack'
+import AllPlaces from './screens/AllPlaces';
+import AddPlace from './screens/AddPlace';
+import IconButton from './components/UI/IconButton';
+import { Colors } from './constants/colors';
+import Map from './screens/Map'
+import { init } from './util/database';
+import AppLoading from 'expo-app-loading';
+import { PlaceDetails } from './screens/PlaceDetails';
+
+
+
+const Stack = createNativeStackNavigator()
 
 export default function App() {
+
+  const [dbInitialized,setDBInitialized] = useState(false)
+  useEffect(()=>{
+      init()
+        .then()
+        .catch(err => console.log(err))
+  },[])
+
+  // if(!dbInitialized){
+  //   return <AppLoading
+  //   onFinish={() => setDBInitialized(val => !val)}
+  //   onError={console.log("ERrro")}
+  //   />
+  // }
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <>
+    <StatusBar style='dark'/>
+    <NavigationContainer>
+    <Stack.Navigator
+    screenOptions={{
+      headerStyle:{backgroundColor:Colors.primary500},
+      headerTintColor:Colors.gray700,
+      contentStyle:{backgroundColor:Colors.gray700,color:'white '}
+      }}
+    >
+      <Stack.Screen 
+      name='AllPlaces'
+      component={AllPlaces} 
+      options={ ({navigation}) =>({
+        title:"Your Favorite Place",
+        headerRight:({tintColor}) => <IconButton icon="add" size={24} color={tintColor} onPress={()=>navigation.navigate('AddPlace')}/>
+      })}/>
+      <Stack.Screen
+      options={{
+        title:"Add a new Place"
+      }} 
+      name='AddPlace' 
+      component={AddPlace}/>
+      <Stack.Screen
+      name='Map'
+      component={Map}
+      />
+      <Stack.Screen
+      name="PlaceDetails"
+      component={PlaceDetails}
+      />
+    </Stack.Navigator>
+    
+
+    </NavigationContainer>
+    </>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
